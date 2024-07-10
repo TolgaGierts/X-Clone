@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs"
 
 export const Signup = async (req, res) => {
     try {
-        console.log(req.body)
         const { username, fullName, email, password } = req.body
         const emailRegex = /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/gim;
         if (!emailRegex.test(email)) {
