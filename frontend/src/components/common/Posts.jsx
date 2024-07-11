@@ -1,5 +1,5 @@
-import Post from './Post';
-import PostSkeleton from '../skeletons/PostSkeleton';
+import Post from '../../components/common/Post';
+import PostSkeleton from '../../components/skeletons/PostSkeleton';
 import { POSTS } from '../../utils/db/dummy';
 
 const Posts = () => {

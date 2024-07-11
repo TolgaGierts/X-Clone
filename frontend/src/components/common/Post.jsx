@@ -8,6 +8,9 @@ import { Link } from 'react-router-dom';
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState('');
+
+  if (!post) return null;
+
   const postOwner = post.user;
   const isLiked = false;
 
