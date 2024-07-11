@@ -13,7 +13,7 @@ export const getUserProfile = async (req, res) => {
         res.status(200).json(user)
     } catch (error) {
         res.status(500).json({ message: error.message })
-        console.log(object, 'error in getUserProfile controller')
+        console.log('error in getUserProfile controller')
 
     }
 }
@@ -39,7 +39,6 @@ export const followUnfollowUser = async (req, res) => {
             })
             await notification.save()
             res.status(200).json({ message: 'Followed successfully' })
-            //TODO: return the id of the user as a response
 
         } else {
             // unfollow user

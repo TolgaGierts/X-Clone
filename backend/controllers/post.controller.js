@@ -9,7 +9,6 @@ export const createPost = async (req, res) => {
         let { img } = req.body
         const userId = req.user._id.toString()
         const user = await User.findById(userId)
-        console.log(user)
         if (!user) {
             return res.status(404).json({ message: 'User not found' })
         }
@@ -28,7 +27,6 @@ export const createPost = async (req, res) => {
         })
         await newPost.save()
         res.status(201).json(newPost)
-        console.log(newPost)
     } catch (error) {
         res.status(500).json({ message: error.message })
         console.log('error in createPost controller')
@@ -38,7 +36,7 @@ export const createPost = async (req, res) => {
 export const deletePost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id)
-        console.log(post)
+
         if (!post) {
             return res.status(404).json({ message: 'Post not found' })
         }
