@@ -33,7 +33,6 @@ const LoginPage = () => {
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Something went wrong');
-        console.log(data);
         return data;
       } catch (error) {
         console.log(error);

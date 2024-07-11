@@ -28,6 +28,7 @@ export const createPost = async (req, res) => {
         })
         await newPost.save()
         res.status(201).json(newPost)
+        console.log(newPost)
     } catch (error) {
         res.status(500).json({ message: error.message })
         console.log('error in createPost controller')
