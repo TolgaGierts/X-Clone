@@ -80,32 +80,44 @@ export const commentOnPost = async (req, res) => {
 
 export const likeUnlikePost = async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id)
-        if (!post) {
-            return res.status(404).json({ message: 'Post not found' })
-        }
-        if (post.likes.includes(req.user._id)) {
-            // post.likes = post.likes.filter((like) => like.toString() !== req.user._id.toString())
-            await Post.updateOne({ _id: req.params.id }, { $pull: { likes: req.user._id } })
-            await User.updateOne({ _id: req.user._id }, { $pull: { likedPosts: req.params.id } })
-        } else {
-            post.likes.push(req.user._id)
-            await User.updateOne({ _id: req.user._id }, { $push: { likedPosts: req.params.id } })
-        }
-        await post.save()
+        const userId = req.user._id;
+        const { id: postId } = req.params;
 
-        const notification = new Notification({
-            from: req.user._id,
-            to: post.user,
-            type: 'like',
-        })
-        await notification.save()
-        res.status(200).json({ message: 'Post liked/unliked successfully' })
+        const post = await Post.findById(postId);
+
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        const userLikedPost = post.likes.includes(userId);
+
+        if (userLikedPost) {
+
+            await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+            await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
+
+            const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());
+            res.status(200).json(updatedLikes);
+        } else {
+            post.likes.push(userId);
+            await User.updateOne({ _id: userId }, { $push: { likedPosts: postId } });
+            await post.save();
+
+            const notification = new Notification({
+                from: userId,
+                to: post.user,
+                type: "like",
+            });
+            await notification.save();
+
+            const updatedLikes = post.likes;
+            res.status(200).json(updatedLikes);
+        }
     } catch (error) {
-        res.status(500).json({ message: error.message })
-        console.log('error in likeUnlikePost controller')
+        console.log("Error in likeUnlikePost controller: ", error);
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
 
 export const getAllPosts = async (req, res) => {
     try {
