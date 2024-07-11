@@ -2,22 +2,60 @@ import { CiImageOn } from 'react-icons/ci';
 import { BsEmojiSmileFill } from 'react-icons/bs';
 import { useRef, useState } from 'react';
 import { IoCloseSharp } from 'react-icons/io5';
-import { useQuery } from '@tanstack/react-query';
+import EmojiPicker from 'emoji-picker-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 const CreatePost = () => {
   const { data } = useQuery({ queryKey: ['authUser'] });
+  const queryClient = useQueryClient();
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const [text, setText] = useState('');
   const [img, setImg] = useState(null);
 
   const imgRef = useRef(null);
 
-  const isPending = false;
-  const isError = false;
+  const {
+    mutate: createPost,
+    isPending,
+    isError,
+  } = useMutation({
+    mutationFn: async ({ text, img }) => {
+      try {
+        const res = await fetch('/api/posts/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text, img }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Something went wrong');
+        }
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+
+    onSuccess: () => {
+      setText('');
+      setImg(null);
+      toast.success('Post created successfully');
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+
+  const onEmojiClick = (event) => {
+    setText((text) => text + event.emoji);
+    setShowEmojiPicker(false);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert('Post created successfully');
+    createPost({ text, img });
   };
 
   const handleImgChange = (e) => {
@@ -67,7 +105,15 @@ const CreatePost = () => {
               className='fill-primary w-6 h-6 cursor-pointer'
               onClick={() => imgRef.current.click()}
             />
-            <BsEmojiSmileFill className='fill-primary w-5 h-5 cursor-pointer' />
+            <BsEmojiSmileFill
+              className='fill-primary w-5 h-5 cursor-pointer'
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            />
+            {showEmojiPicker && (
+              <div className='absolute z-10'>
+                <EmojiPicker onEmojiClick={onEmojiClick} />
+              </div>
+            )}
           </div>
           <input type='file' hidden ref={imgRef} onChange={handleImgChange} />
           <button className='btn btn-primary rounded-full btn-sm text-white px-4'>

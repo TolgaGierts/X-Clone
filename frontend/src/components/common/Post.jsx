@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from './LoadingSpinner';
+import timeAgo from '../../utils/helpers/timeAgo';
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState('');
@@ -47,7 +48,7 @@ const Post = ({ post }) => {
 
   const isMyPost = authUser._id === post.user._id;
 
-  const formattedDate = '1h';
+  const formattedDate = timeAgo(post.createdAt);
 
   const isCommenting = false;
 
