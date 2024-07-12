@@ -13,9 +13,7 @@ import timeAgo from '../../utils/helpers/timeAgo';
 const Post = ({ post }) => {
   const [comment, setComment] = useState('');
   const queryClient = useQueryClient();
-  const postOwner = post.user;
-  const isLiked = post.likes.includes(authUser?._id);
-  const isMyPost = authUser._id === post.user._id;
+
   const formattedDate = timeAgo(post.createdAt);
 
   const { data: authUser } = useQuery({
@@ -100,6 +98,10 @@ const Post = ({ post }) => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
+
+  const postOwner = post.user;
+  const isLiked = post.likes.includes(authUser?._id);
+  const isMyPost = authUser._id === post.user._id;
 
   const handleDeletePost = () => deletePost();
 

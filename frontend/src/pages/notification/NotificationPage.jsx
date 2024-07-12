@@ -6,6 +6,7 @@ import { FaUser } from 'react-icons/fa';
 import { FaHeart } from 'react-icons/fa6';
 
 import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 const NotificationPage = () => {
   const queryClient = new QueryClient();
@@ -47,6 +48,9 @@ const NotificationPage = () => {
     onSuccess: () => {
       // refetch notifications after deleting
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
