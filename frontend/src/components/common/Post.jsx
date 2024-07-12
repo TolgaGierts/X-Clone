@@ -13,6 +13,10 @@ import timeAgo from '../../utils/helpers/timeAgo';
 const Post = ({ post }) => {
   const [comment, setComment] = useState('');
   const queryClient = useQueryClient();
+  const postOwner = post.user;
+  const isLiked = post.likes.includes(authUser?._id);
+  const isMyPost = authUser._id === post.user._id;
+  const formattedDate = timeAgo(post.createdAt);
 
   const { data: authUser } = useQuery({
     queryKey: ['authUser'],
@@ -71,27 +75,46 @@ const Post = ({ post }) => {
     },
   });
 
-  if (!post) return null;
-
-  const postOwner = post.user;
-  const isLiked = post.likes.includes(authUser?._id);
-
-  const isMyPost = authUser._id === post.user._id;
-
-  const formattedDate = timeAgo(post.createdAt);
-
-  const isCommenting = false;
+  const { mutate: commentPost, isPending: isCommenting } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetch(`/api/posts/comment/${post._id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ comment }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Something went wrong');
+        }
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    onSuccess: () => {
+      toast.success('Comment posted successfully');
+      setComment('');
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
 
   const handleDeletePost = () => deletePost();
 
   const handlePostComment = (e) => {
     e.preventDefault();
+    if (isCommenting) return;
+    commentPost();
   };
 
   const handleLikePost = () => {
     if (isLiking) return;
     likePost();
   };
+
+  if (!post) return null;
 
   return (
     <>
@@ -154,7 +177,7 @@ const Post = ({ post }) => {
                   {post.comments.length}
                 </span>
               </div>
-              {/* We're using Modal Component from DaisyUI */}
+
               <dialog
                 id={`comments_modal${post._id}`}
                 className='modal border-none outline-none'
