@@ -81,7 +81,7 @@ const Post = ({ post }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ comment }),
+          body: JSON.stringify({ text: comment }),
         });
         const data = await res.json();
         if (!res.ok) {
