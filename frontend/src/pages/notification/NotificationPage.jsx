@@ -5,9 +5,11 @@ import { IoSettingsOutline } from 'react-icons/io5';
 import { FaUser } from 'react-icons/fa';
 import { FaHeart } from 'react-icons/fa6';
 
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
 
 const NotificationPage = () => {
+  const queryClient = new QueryClient();
+
   const { isLoading, data: notifications } = useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
@@ -25,6 +27,26 @@ const NotificationPage = () => {
       } catch (error) {
         throw new Error(error);
       }
+    },
+  });
+
+  const { mutate: deleteNotifications } = useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await fetch('/api/notifications', {
+          method: 'DELETE',
+        });
+        const data = await response.json();
+        if (data.error) return null;
+        if (!response.ok) throw new Error(data.error || 'Something went wrong');
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    onSuccess: () => {
+      // refetch notifications after deleting
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
 
