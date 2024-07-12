@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
+import path from 'path';
 
 import postRoutes from "./routes/post.routes.js"
 import authRoutes from "./routes/auth.routes.js";
